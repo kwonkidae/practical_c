@@ -25,6 +25,14 @@ void usage(void)
 
 int main(int argc, char *argv[])
 {
+  int array[] = {4,5,8,9,8,1,0,1,9,3};
+  int * p_array = array;
+  int idx = 0;
+  while(idx < 8) {
+    printf("%d\n", p_array[0]);
+    ++idx;
+    ++p_array;
+  }
   program_name = argv[0];
   printf("%s\n", program_name);
 
