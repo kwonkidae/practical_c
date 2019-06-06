@@ -22,7 +22,38 @@ void usage(void) {
 }
 int main(int argc, char *argv[]) {
 	program_name = argv[0];
-	printf("%s\n", program_name);
-	printf("argc %d\n", argc);
+	
+	while((argc > 1) && (argv[1][0] == '-')) {
+		switch(argv[1][1]) {
+			case 'v':
+				verbose = 1;
+				break;
+			
+			case 'o':
+				out_file = &argv[1][2];
+				break;
+
+			case 'l':
+				line_max = atoi(&argv[1][2]);
+				break;
+			
+			default:
+				fprintf(stderr, "Bad option %s\n", argv[1]);
+				usage();
+		}
+
+		++argv;
+		--argc;
+	}
+
+	if (argc == 1) {
+		do_file("print.in");
+	} else {
+		while(argc > 1) {
+			do_file(argv[1]);
+			++argv;
+			--argc;
+		}
+	}
 	return 0;
 }
