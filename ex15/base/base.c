@@ -1,16 +1,47 @@
 #define STRING_LENGTH 80
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-int main() {
+FILE *save_file = NULL;
+FILE *playback_file = NULL;
+char *extended_fgets(char *, int, FILE *);
+
+int main(int argc, char *argv[]) {
   char name[STRING_LENGTH];
+  char *save_file_name;
+  char *playback_file_name;
 
   int lookup(char const *const name);
 
+  while((argc > 1) && (argv[1][0] == '-')) {
+    switch(argv[1][1]) {
+      case 'S':
+        save_file_name = &argv[1][2];
+        save_file = fopen(save_file_name, "w");
+        if (save_file == NULL)
+          fprintf(stderr, "Warning:Unable to open save file %s\n", save_file_name);
+        break;
+      case 'P':
+        playback_file_name = &argv[1][2];
+        playback_file = fopen(playback_file_name, "r");
+        if (playback_file == NULL) {
+          fprintf(stderr, "Error:Unable to open playback file %s\n", playback_file_name);
+          exit(8);
+        }
+        break;
+      default:
+        fprintf(stderr, "Bad option: %s\n", argv[1]);
+        exit(8);
+    }
+
+    --argc;
+    ++argv;
+  }
+
   while(1) {
     printf("Enter name: ");
-    fgets(name, sizeof(name), stdin);
-
+    char *temp = extended_fgets(name, sizeof(name), stdin);
     if (strlen(name) <= 1)
       break;
 
@@ -42,4 +73,21 @@ int lookup(const char *const name) {
   }
 
   return 0;
+}
+
+char *extended_fgets(char *line, int size, FILE *file) {
+  extern FILE *save_file;
+  extern FILE *playback_file;
+  char *result;
+
+  if (playback_file != NULL) {
+    result = fgets(line, size, playback_file);
+    fputs(line, stdout);
+  } else
+    result = fgets(line, size, file);
+  
+  if (save_file != NULL)
+    fputs(line, save_file);
+
+  return result;
 }
